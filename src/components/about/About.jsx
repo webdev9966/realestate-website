@@ -2,10 +2,13 @@ import React from 'react'
 import './about.css'
 import Back from '../common/Back'
 import Heading from '../common/Heading'
+import Header from '../common/header/Header'
+import Footer from '../common/footer/Footer'
 
 const About = () => {
   return (
     <>
+    <Header />
         <section className='about'>
             <Back name="About Us" title="About Us - Who we Are?" cover={"../images/about.jpg"} />
             <div className="container1 flex mtop">
@@ -25,6 +28,7 @@ const About = () => {
                 </div>
             </div>
         </section>
+    <Footer />
     </>
   )
 }
