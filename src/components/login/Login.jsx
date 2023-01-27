@@ -1,50 +1,95 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import swal from 'sweetalert';
+import { Button, TextField, Link } from '@material-ui/core';
+// const axios = require('axios');
+import axios from 'axios';
+const bcrypt = require('bcryptjs');
+var salt = bcrypt.genSaltSync(10);
 
-import './login.css'
+export default class Login extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      username: '',
+      password: ''
+    };
+  }
 
-const Login = () => {
+  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
+
+  login = () => {
+
+    const pwd = bcrypt.hashSync(this.state.password, salt);
+
+    axios.post('http://localhost:5000/login', {
+      username: this.state.username,
+      password: pwd,
+    }).then((res) => {
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user_id', res.data.id);
+      this.props.history.push('/homepage');
+    }).catch((err) => {
+      if (err.response && err.response.data && err.response.data.errorMessage) {
+        swal({
+          text: err.response.data.errorMessage,
+          icon: "error",
+          type: "error"
+        });
+      }
+    });
+  }
+
+  render() {
     return (
-        <div className="text-center m-5-auto">
-            <h2>Sign in to us</h2>
-            <form action="/home">
-                <p>
-                    <label>Username or email address</label><br/>
-                    <input type="text" name="first_name" required />
-                </p>
-                <p>
-                    <label>Password</label>
-                    <Link to="/forget-password"><label className="right-label">Forget password?</label></Link>
-                    <br/>
-                    <input type="password" name="password" required />
-                </p>
-                <p>
-                    <button id="sub_btn" type="submit">Login</button>
-                </p>
-            </form>
-            <foot>
-                <p>First time? <Link to="/register" className='link'>Create an account</Link>.</p>
-                <p><Link to="/homepage" className='link'>Back to Homepage</Link>.</p>
-            </foot>
-            <Footer />
+      <div style={{ marginTop: '150px' }}>
+        <div>
+          <h2 className='login'>Login</h2>
         </div>
-    )
-}
-export default Login
 
-const Footer = () => {
-    return (
-        <p className="text-center" style={ FooterStyle }>Designed & coded by <a href="https://izemspot.netlify.com" target="_blank" rel="noopener noreferrer">IZEMSPOT</a></p>
-    )
-}
-const FooterStyle = {
-    background: "#222",
-    fontSize: ".8rem",
-    color: "#fff",
-    position: "absolute",
-    bottom: 0,
-    padding: "1rem",
-    margin: 0,
-    width: "100%",
-    opacity: ".5"
+        <div>
+          <TextField
+            id="standard-basic"
+            style={{width: 250}}
+            type="text"
+            autoComplete="off"
+            name="username"
+            value={this.state.username}
+            onChange={this.onChange}
+            placeholder="User Name"
+            required
+          />
+          <br /><br />
+          <TextField
+            id="standard-basic"
+            style={{width: 250}}
+            type="password"
+            autoComplete="off"
+            name="password"
+            value={this.state.password}
+            onChange={this.onChange}
+            placeholder="Password"
+            required
+          />
+          <br /><br />
+          <Button
+            className="button_style"
+            variant="contained"
+            color="primary"
+            size="small"
+            disabled={this.state.username === '' && this.state.password === ''}
+            onClick={this.login}
+          >
+            Login
+          </Button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <Link href="/register">
+            Register
+          </Link>
+        </div>
+        <br/>
+        <Link href="/">
+            Back to Home
+        </Link>
+      </div>
+    );
+  }
 }
